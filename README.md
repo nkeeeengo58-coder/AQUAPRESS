@@ -65,6 +65,20 @@ pip install -r requirements.txt
 python src/main.py
 ```
 
+入力JSONを指定して生成する場合は、次の形式です。
+
+```bash
+python src/main.py input/sample_data/sample_video.json
+```
+
+Geminiで台本を自動生成してから動画化する場合は、次を実行します。
+
+```bash
+python src/main.py --info "都内ショップで紅龍の新着があり、25cm前後の個体が入荷"
+```
+
+このモードでは、Geminiの生成結果を `output/metadata/generated_script.json` に保存したうえで、既存の動画スキーマにマージして生成します。
+
 見た目確認用の高速プレビューを生成する場合は、以下を実行します。
 
 ```powershell
@@ -81,6 +95,33 @@ Remove-Item Env:AQUAPRESS_PREVIEW
 
 VOICEVOX を使う場合は、ローカルの VOICEVOX エンジンを `http://127.0.0.1:50021` で起動してから実行します。
 `input/sample_data/sample_video.json` の `narration_text` と `voicevox` 設定が使われます。
+
+## Gemini Flash 連携（Phase 3 MVP）
+
+情報テキストから台本を生成して動画化できます。
+
+### セットアップ
+
+1. [Google AI Studio](https://aistudio.google.com/apikey) で API キーを作成
+2. `.env` に以下を設定
+
+```env
+GEMINI_API_KEY=your_key_here
+GEMINI_MODEL=gemini-2.0-flash
+GEMINI_API_ENDPOINT=https://generativelanguage.googleapis.com/v1beta/models
+```
+
+### 実行
+
+```bash
+python src/main.py --info "セール速報: 水草全品20%OFF"
+```
+
+### 補足
+
+- `--info` を指定しない通常実行は、これまでどおり JSON 直読みで動作します。
+- `GEMINI_API_KEY` が未設定の場合はエラーで停止します。
+- 生成JSONの必須項目（title, hook, sections, narration_text）を検証してから動画生成に渡します。
 
 ## フォルダ構成
 
