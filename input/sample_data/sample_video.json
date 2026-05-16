@@ -1,0 +1,22 @@
+{
+  "title": "【速報】極上紅龍が入荷",
+  "description": "本日のAQUA PRESS速報。大型魚・アロワナ好き向けに最新情報を毎日発信中。",
+  "hook": "【速報】\n極上紅龍 入荷",
+  "sections": [
+    {
+      "image": "input/images/sample1.jpg",
+      "caption": "ラフレシアで\n極上紅龍が入荷。\n25cm前後。"
+    },
+    {
+      "image": "input/images/sample2.jpg",
+      "caption": "発色はかなり強め。\n青み下地もあり\n将来性が高そうです。"
+    },
+    {
+      "image": null,
+      "caption": "大型魚好きなら\nかなり注目の個体です。\n保存推奨。"
+    }
+  ],
+  "narration_audio": null,
+  "bgm": null,
+  "output": "output/videos/aqua_press_sample.mp4"
+}

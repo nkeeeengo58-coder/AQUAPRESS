@@ -1,0 +1,5 @@
+moviepy>=1.0.3
+Pillow>=10.0.0
+PyYAML>=6.0.0
+imageio-ffmpeg>=0.5.1
+pytest>=8.0.0
