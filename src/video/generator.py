@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import json
 from pathlib import Path
 
@@ -8,11 +9,12 @@ import yaml
 from PIL import Image, ImageDraw
 
 try:
-    from moviepy import AudioFileClip, ColorClip, CompositeAudioClip, CompositeVideoClip, ImageClip, concatenate_videoclips
+    from moviepy import AudioFileClip, ColorClip, CompositeAudioClip, ImageClip, concatenate_videoclips
 except ImportError:  # pragma: no cover
-    from moviepy.editor import AudioFileClip, ColorClip, CompositeAudioClip, CompositeVideoClip, ImageClip, concatenate_videoclips
+    from moviepy.editor import AudioFileClip, ColorClip, CompositeAudioClip, ImageClip, concatenate_videoclips
 
 from audio.bgm import load_bgm_clip
+from audio.voicevox import DEFAULT_SPEAKER, DEFAULT_VOICEVOX_ENGINE_URL, synthesize_voicevox
 from utils.paths import ensure_output_folders, get_project_root, resolve_project_path
 from video.captions import _load_font, create_title_card_clip
 
@@ -62,25 +64,6 @@ def _color_to_rgb(color_name: str) -> tuple[int, int, int]:
         "red": (200, 20, 20),
     }
     return mapping.get(str(color_name).lower(), (0, 0, 0))
-
-
-def _load_image_clip(image_path: str | None, width: int, height: int, max_width: int, max_height: int, duration: float):
-    if image_path:
-        resolved = resolve_project_path(image_path)
-        if resolved.exists():
-            try:
-                clip = ImageClip(str(resolved))
-                clip = _resized(clip, height=min(max_height, height))
-                if clip.w > max_width:
-                    clip = _resized(clip, width=max_width)
-                return _with_duration(clip, duration)
-            except Exception as exc:
-                print(f"[WARN] Failed to load image '{resolved}': {exc}")
-        else:
-            print(f"[WARN] Image not found: {resolved}")
-
-    placeholder = ColorClip(size=(min(max_width, width - 180), min(max_height, 780)), color=(20, 20, 20))
-    return _with_duration(placeholder, duration)
 
 
 def _build_section_clip(section: dict, style: dict, duration: float):
@@ -193,6 +176,8 @@ def generate_video(data: dict, style: dict | None = None) -> Path:
             final_video = final_video.subclip(0, total_duration)
 
     narration_audio_path = data.get("narration_audio")
+    narration_text = data.get("narration_text") or data.get("narration")
+    voicevox_settings = data.get("voicevox", {}) or {}
     bgm_audio_path = data.get("bgm")
     audio_tracks = []
 
@@ -205,6 +190,15 @@ def generate_video(data: dict, style: dict | None = None) -> Path:
                 print(f"[WARN] Failed to load narration audio '{narration_path}': {exc}")
         else:
             print(f"[WARN] Narration audio not found: {narration_path}")
+    elif narration_text and (voicevox_settings.get("enabled") is True or os.getenv("AQUAPRESS_VOICEVOX") == "1"):
+        narration_path = _synthesize_narration_audio(narration_text, folders, voicevox_settings)
+        if narration_path is not None:
+            try:
+                audio_tracks.append(AudioFileClip(str(narration_path)))
+            except Exception as exc:
+                print(f"[WARN] Failed to load synthesized narration '{narration_path}': {exc}")
+    elif narration_text:
+        print("[INFO] VOICEVOX narration is configured but disabled; set AQUAPRESS_VOICEVOX=1 to enable.")
 
     bgm_clip = load_bgm_clip(str(resolve_project_path(bgm_audio_path)) if bgm_audio_path else None, volume=bgm_volume)
     if bgm_clip is not None:
@@ -236,6 +230,27 @@ def generate_video(data: dict, style: dict | None = None) -> Path:
 
     _close_clips(clips + [final_video], audio_tracks)
     return output_path
+
+
+def _synthesize_narration_audio(text: str, folders: dict[str, Path], voicevox_settings: dict) -> Path | None:
+    engine_url = str(voicevox_settings.get("engine_url", DEFAULT_VOICEVOX_ENGINE_URL))
+    speaker = int(voicevox_settings.get("speaker", DEFAULT_SPEAKER))
+    output_name = str(voicevox_settings.get("output", "narration_voicevox.wav"))
+    output_path = folders["metadata"] / output_name
+    print(f"[INFO] Synthesizing VOICEVOX narration: {output_path}", flush=True)
+    return synthesize_voicevox(
+        text=text,
+        output_path=output_path,
+        speaker=speaker,
+        engine_url=engine_url,
+        speed_scale=float(voicevox_settings.get("speed_scale", 1.0)),
+        pitch_scale=float(voicevox_settings.get("pitch_scale", 0.0)),
+        intonation_scale=float(voicevox_settings.get("intonation_scale", 1.0)),
+        volume_scale=float(voicevox_settings.get("volume_scale", 1.0)),
+        pre_phoneme_length=float(voicevox_settings.get("pre_phoneme_length", 0.1)),
+        post_phoneme_length=float(voicevox_settings.get("post_phoneme_length", 0.1)),
+        silence_length=float(voicevox_settings.get("silence_length", 0.0)),
+    )
 
 
 def _close_clips(video_clips: list, audio_clips: list) -> None:
