@@ -64,7 +64,8 @@ def _build_audio_query(
 ) -> dict:
     url = f"{engine_url.rstrip('/')}/audio_query"
     params = parse.urlencode({"text": text, "speaker": speaker})
-    with request.urlopen(f"{url}?{params}", timeout=30) as response:
+    req = request.Request(f"{url}?{params}", data=b"", method="POST")
+    with request.urlopen(req, timeout=30) as response:
         query = json.loads(response.read().decode("utf-8"))
 
     query["speedScale"] = speed_scale
