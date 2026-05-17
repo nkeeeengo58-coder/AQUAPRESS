@@ -6,10 +6,16 @@ on:
     - cron: '0 8 * * *'
   workflow_dispatch: # Allow manual trigger
 
+permissions:
+  contents: write
+
 jobs:
   generate-video:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
+    concurrency:
+      group: daily-video-generation
+      cancel-in-progress: false
 
     steps:
       - name: Checkout repository
@@ -28,70 +34,69 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run crawler and generate video
+      - name: Run crawler and generate video (primary)
+        id: primary
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_MODEL: gemini-2.0-flash
           GEMINI_API_ENDPOINT: https://generativelanguage.googleapis.com/v1beta/models
         run: |
-          # Run crawler to fetch fresh data
-          python -c "
-          import sys; sys.path.insert(0, 'src')
-          from crawler import run_crawler
-          from datetime import datetime
-          
-          print('[INFO] Running crawler...')
-          result = run_crawler()
-          
-          if result.get('items'):
-              print(f'[OK] Fetched {len(result[\"items\"])} items')
-              # Convert to info text and pass to Gemini
-              from main import _convert_crawler_to_info_text
-              info_text = _convert_crawler_to_info_text(result)
-              print('[INFO] Generated info text for Gemini')
-              print(info_text[:200] + '...' if len(info_text) > 200 else info_text)
-          else:
-              print('[WARN] No items fetched, skipping generation')
-              sys.exit(0)
-          "
+          set +e
+          python src/main.py --crawler 2>&1 | tee primary.log
+          status=${PIPESTATUS[0]}
+          set -e
 
-      - name: Generate script with Gemini (optional sample mode)
+          if [ "$status" -eq 0 ]; then
+            echo "fallback_needed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if grep -Eqi "quota|resource exhausted|rate limit|too many requests|429" primary.log; then
+            echo "fallback_needed=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "Primary pipeline failed for non-quota reason."
+          exit "$status"
+
+      - name: Fallback local full pipeline
+        if: steps.primary.outputs.fallback_needed == 'true'
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_MODEL: gemini-2.0-flash
+          GEMINI_API_ENDPOINT: https://generativelanguage.googleapis.com/v1beta/models
         run: |
-          # Generate sample metadata if needed
-          ls -la metadata/ 2>/dev/null || echo "[INFO] No metadata directory yet"
-          
-          # Count generated scripts
-          SCRIPT_COUNT=$(find metadata/ -name "generated_script_*.json" 2>/dev/null | wc -l)
-          echo "[OK] Generated scripts: $SCRIPT_COUNT"
+          python scripts/run_local_full_pipeline.py
 
-      - name: Commit and push crawler data
+      - name: Commit generated outputs
         run: |
           git config user.name "AQUA PRESS Bot"
           git config user.email "bot@aquapress.local"
-          
-          # Check if there are new crawler data files
-          if git status --porcelain | grep -q "crawler_data_"; then
-              git add metadata/crawler_data_*.json
-              git commit -m "chore: auto-generated crawler data $(date +%Y-%m-%d)"
-              git push
-              echo "[OK] Pushed new crawler data"
-          else
-              echo "[INFO] No new crawler data to commit"
+
+          [ -d output/metadata ] && git add output/metadata || true
+          [ -d output/videos ] && git add output/videos || true
+          [ -d output/generated/images ] && git add output/generated/images || true
+
+          if git diff --cached --quiet; then
+              echo "[INFO] No generated changes to commit"
+              exit 0
           fi
 
-      - name: Upload run logs (on failure)
-        if: failure()
+          git commit -m "chore: daily auto video generation $(date -u +%Y-%m-%d)"
+          git push
+          echo "[OK] Pushed generated outputs"
+
+      - name: Upload artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: workflow-logs
-          path: |
-            *.log
-            metadata/
-            crawler_logs/
+          name: daily-video-generation-${{ github.run_id }}
           retention-days: 7
+          path: |
+            primary.log
+            output/metadata/**
+            output/videos/**
+            output/generated/images/**
 
       - name: Notify completion
         if: always()

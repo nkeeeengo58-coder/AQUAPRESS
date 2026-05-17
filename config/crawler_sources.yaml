@@ -1,32 +1,315 @@
-# Crawler information sources configuration
-
 rss_feeds:
-  - name: "Google News - Aquarium"
-    url: "https://news.google.com/rss/search?q=アクアリウム"
+  - name: "Google News - アクアリウム"
+    url: "https://news.google.com/rss/search?q=アクアリウム&hl=ja&gl=JP&ceid=JP:ja"
     category: "news"
     enabled: true
-  - name: "Google News - Tropical Fish"
-    url: "https://news.google.com/rss/search?q=熱帯魚"
+  - name: "Google News - アロワナ"
+    url: "https://news.google.com/rss/search?q=アロワナ&hl=ja&gl=JP&ceid=JP:ja"
+    category: "arrival"
+    enabled: true
+  - name: "Google News - セール"
+    url: "https://news.google.com/rss/search?q=アクアリウム+セール&hl=ja&gl=JP&ceid=JP:ja"
+    category: "sale"
+    enabled: true
+  - name: "Google News - 入荷"
+    url: "https://news.google.com/rss/search?q=熱帯魚+入荷&hl=ja&gl=JP&ceid=JP:ja"
+    category: "arrival"
+    enabled: true
+
+  - name: "Google News - aro78"
+    url: "https://news.google.com/rss/search?q=aro78+アロワナ&hl=ja&gl=JP&ceid=JP:ja"
+    category: "arrival"
+    enabled: true
+  - name: "Google News - aquarium_rick_agguy"
+    url: "https://news.google.com/rss/search?q=aquarium_rick_agguy+アロワナ&hl=ja&gl=JP&ceid=JP:ja"
+    category: "arrival"
+    enabled: true
+  - name: "Google News - AQUASTYLEG"
+    url: "https://news.google.com/rss/search?q=AQUASTYLEG+アクアリウム&hl=ja&gl=JP&ceid=JP:ja"
+    category: "news"
+    enabled: true
+  - name: "Google News - arowanakingkong"
+    url: "https://news.google.com/rss/search?q=arowanakingkong+アロワナ&hl=ja&gl=JP&ceid=JP:ja"
+    category: "arrival"
+    enabled: true
+  - name: "Google News - higopet_aqua"
+    url: "https://news.google.com/rss/search?q=higopet_aqua+アクアリウム&hl=ja&gl=JP&ceid=JP:ja"
+    category: "sale"
+    enabled: true
+  - name: "Google News - rafflesia_jp"
+    url: "https://news.google.com/rss/search?q=rafflesia_jp+アロワナ&hl=ja&gl=JP&ceid=JP:ja"
+    category: "arrival"
+    enabled: true
+  - name: "Google News - wildmon_aquarium"
+    url: "https://news.google.com/rss/search?q=wildmon_aquarium+熱帯魚&hl=ja&gl=JP&ceid=JP:ja"
+    category: "arrival"
+    enabled: true
+  - name: "Google News - bayside.aqua"
+    url: "https://news.google.com/rss/search?q=bayside.aqua+アクアリウム&hl=ja&gl=JP&ceid=JP:ja"
+    category: "arrival"
+    enabled: true
+  - name: "Google News - tropical-fish-sano.com"
+    url: "https://news.google.com/rss/search?q=tropical-fish-sano.com+熱帯魚&hl=ja&gl=JP&ceid=JP:ja"
+    category: "arrival"
+    enabled: true
+  - name: "Google News - arowana888.com"
+    url: "https://news.google.com/rss/search?q=arowana888.com+アロワナ&hl=ja&gl=JP&ceid=JP:ja"
+    category: "arrival"
+    enabled: true
+  - name: "Google News - arowana.cc"
+    url: "https://news.google.com/rss/search?q=arowana.cc+アロワナ&hl=ja&gl=JP&ceid=JP:ja"
+    category: "arrival"
+    enabled: true
+  - name: "Google News - higopet.com"
+    url: "https://news.google.com/rss/search?q=higopet.com+アクアリウム&hl=ja&gl=JP&ceid=JP:ja"
+    category: "sale"
+    enabled: true
+  - name: "Google News - aquastyleg.base.shop"
+    url: "https://news.google.com/rss/search?q=aquastyleg.base.shop+アクアリウム&hl=ja&gl=JP&ceid=JP:ja"
+    category: "sale"
+    enabled: true
+  - name: "Google News - kaitori-king-kong.com"
+    url: "https://news.google.com/rss/search?q=kaitori-king-kong.com+アロワナ&hl=ja&gl=JP&ceid=JP:ja"
+    category: "arrival"
+    enabled: true
+  - name: "Google News - shop.wildmon.jp"
+    url: "https://news.google.com/rss/search?q=shop.wildmon.jp+熱帯魚&hl=ja&gl=JP&ceid=JP:ja"
+    category: "arrival"
+    enabled: true
+  - name: "Google News - bayside-aqua.com"
+    url: "https://news.google.com/rss/search?q=bayside-aqua.com+アクアリウム&hl=ja&gl=JP&ceid=JP:ja"
+    category: "arrival"
+    enabled: true
+  - name: "Google News - CHARM"
+    url: "https://news.google.com/rss/search?q=shopping-charm+アクアリウム&hl=ja&gl=JP&ceid=JP:ja"
+    category: "sale"
+    enabled: true
+  - name: "Google News - ZENSUI"
+    url: "https://news.google.com/rss/search?q=ZENSUI+アクアリウム&hl=ja&gl=JP&ceid=JP:ja"
+    category: "news"
+    enabled: true
+  - name: "Google News - EHEIM"
+    url: "https://news.google.com/rss/search?q=EHEIM+アクアリウム&hl=ja&gl=JP&ceid=JP:ja"
+    category: "news"
+    enabled: true
+  - name: "Google News - KOTOBUKI"
+    url: "https://news.google.com/rss/search?q=KOTOBUKI+アクアリウム&hl=ja&gl=JP&ceid=JP:ja"
+    category: "news"
+    enabled: true
+  - name: "Google News - GEX"
+    url: "https://news.google.com/rss/search?q=GEX+アクアリウム&hl=ja&gl=JP&ceid=JP:ja"
+    category: "news"
+    enabled: true
+  - name: "Google News - ADA"
+    url: "https://news.google.com/rss/search?q=ADA+アクアリウム&hl=ja&gl=JP&ceid=JP:ja"
+    category: "news"
+    enabled: true
+  - name: "Google News - Rakuten Chanet"
+    url: "https://news.google.com/rss/search?q=rakuten+chanet+アクアリウム&hl=ja&gl=JP&ceid=JP:ja"
+    category: "sale"
+    enabled: true
+  - name: "Google News - MonsterFishKeepers"
+    url: "https://news.google.com/rss/search?q=monsterfishkeepers+arowana&hl=en-US&gl=US&ceid=US:en"
     category: "news"
     enabled: true
 
 html_sources:
-  - name: "Aquarium Shop Example"
-    url: "https://example-aquarium-shop.com/arrival"
+  - name: "Tropical Fish Sano"
+    url: "https://www.tropical-fish-sano.com/"
     selectors:
-      title: "div.item-title"
-      description: "div.item-description"
-      image: "img.item-image"
-      link: "a.item-link"
+      item: "article, li, .item, .post"
+      title: "h1, h2, h3, .title, .entry-title, a"
+      description: "p, .description, .excerpt, .summary"
+      link: "a[href]"
+      image: "img[src], img[data-src], img[data-lazy-src]"
     category: "arrival"
-    enabled: false  # Replace with real URL
-    timeout: 10
+    enabled: true
+    timeout: 20
 
-# Crawler behavior settings
+  - name: "Arowana888"
+    url: "https://www.arowana888.com/"
+    selectors:
+      item: "article, li, .item, .post"
+      title: "h1, h2, h3, .title, .entry-title, a"
+      description: "p, .description, .excerpt, .summary"
+      link: "a[href]"
+      image: "img[src], img[data-src], img[data-lazy-src]"
+    category: "arrival"
+    enabled: true
+    timeout: 20
+
+  - name: "Arowana.cc"
+    url: "https://www.arowana.cc/"
+    selectors:
+      item: "article, li, .item, .post"
+      title: "h1, h2, h3, .title, .entry-title, a"
+      description: "p, .description, .excerpt, .summary"
+      link: "a[href]"
+      image: "img[src], img[data-src], img[data-lazy-src]"
+    category: "arrival"
+    enabled: true
+    timeout: 20
+
+  - name: "Higopet"
+    url: "https://www.higopet.com/"
+    selectors:
+      item: "article, li, .item, .post, .product"
+      title: "h1, h2, h3, .title, .entry-title, .product-title, a"
+      description: "p, .description, .excerpt, .summary"
+      link: "a[href]"
+      image: "img[src], img[data-src], img[data-lazy-src]"
+    category: "sale"
+    enabled: true
+    timeout: 20
+
+  - name: "AQUASTYLEG BASE"
+    url: "https://aquastyleg.base.shop/"
+    selectors:
+      item: "article, li, .item, .post, .product"
+      title: "h1, h2, h3, .title, .entry-title, .product-title, a"
+      description: "p, .description, .excerpt, .summary"
+      link: "a[href]"
+      image: "img[src], img[data-src], img[data-lazy-src]"
+    category: "sale"
+    enabled: true
+    timeout: 20
+
+  - name: "Kaitori King Kong"
+    url: "http://www.kaitori-king-kong.com/"
+    selectors:
+      item: "article, li, .item, .post"
+      title: "h1, h2, h3, .title, .entry-title, a"
+      description: "p, .description, .excerpt, .summary"
+      link: "a[href]"
+      image: "img[src], img[data-src], img[data-lazy-src]"
+    category: "arrival"
+    enabled: true
+    timeout: 20
+
+  - name: "Wildmon Shop"
+    url: "https://shop.wildmon.jp/"
+    selectors:
+      item: "article, li, .item, .post, .product"
+      title: "h1, h2, h3, .title, .entry-title, .product-title, a"
+      description: "p, .description, .excerpt, .summary"
+      link: "a[href]"
+      image: "img[src], img[data-src], img[data-lazy-src]"
+    category: "arrival"
+    enabled: true
+    timeout: 20
+
+  - name: "Bayside Aqua"
+    url: "http://www.bayside-aqua.com/"
+    selectors:
+      item: "article, li, .item, .post, .product"
+      title: "h1, h2, h3, .title, .entry-title, .product-title, a"
+      description: "p, .description, .excerpt, .summary"
+      link: "a[href]"
+      image: "img[src], img[data-src], img[data-lazy-src]"
+    category: "arrival"
+    enabled: true
+    timeout: 20
+
+  - name: "ZENSUI"
+    url: "https://www.zensui.co.jp/"
+    selectors:
+      item: "article, li, .item, .post, .news"
+      title: "h1, h2, h3, .title, .entry-title, .news-title, a"
+      description: "p, .description, .excerpt, .summary"
+      link: "a[href]"
+      image: "img[src], img[data-src], img[data-lazy-src]"
+    category: "news"
+    enabled: true
+    timeout: 20
+
+  - name: "EHEIM JP"
+    url: "https://eheim.jp/"
+    selectors:
+      item: "article, li, .item, .post, .news"
+      title: "h1, h2, h3, .title, .entry-title, .news-title, a"
+      description: "p, .description, .excerpt, .summary"
+      link: "a[href]"
+      image: "img[src], img[data-src], img[data-lazy-src]"
+    category: "news"
+    enabled: true
+    timeout: 20
+
+  - name: "KOTOBUKI"
+    url: "https://www.kotobuki-kogei.co.jp/"
+    selectors:
+      item: "article, li, .item, .post, .news"
+      title: "h1, h2, h3, .title, .entry-title, .news-title, a"
+      description: "p, .description, .excerpt, .summary"
+      link: "a[href]"
+      image: "img[src], img[data-src], img[data-lazy-src]"
+    category: "news"
+    enabled: true
+    timeout: 20
+
+  - name: "GEX"
+    url: "https://www.gex-fp.co.jp/"
+    selectors:
+      item: "article, li, .item, .post, .news"
+      title: "h1, h2, h3, .title, .entry-title, .news-title, a"
+      description: "p, .description, .excerpt, .summary"
+      link: "a[href]"
+      image: "img[src], img[data-src], img[data-lazy-src]"
+    category: "news"
+    enabled: true
+    timeout: 20
+
+  - name: "ADA"
+    url: "https://www.adana.co.jp/jp/"
+    selectors:
+      item: "article, li, .item, .post, .news"
+      title: "h1, h2, h3, .title, .entry-title, .news-title, a"
+      description: "p, .description, .excerpt, .summary"
+      link: "a[href]"
+      image: "img[src], img[data-src], img[data-lazy-src]"
+    category: "news"
+    enabled: true
+    timeout: 20
+
+  - name: "Shopping CHARM"
+    url: "https://www.shopping-charm.jp/category/2c2c2c2c-2c2c-3133-3030-303030303030"
+    selectors:
+      item: "article, li, .item, .post, .product"
+      title: "h1, h2, h3, .title, .entry-title, .product-title, a"
+      description: "p, .description, .excerpt, .summary"
+      link: "a[href]"
+      image: "img[src], img[data-src], img[data-lazy-src]"
+    category: "sale"
+    enabled: true
+    timeout: 20
+
+  - name: "Rakuten Chanet"
+    url: "https://www.rakuten.co.jp/chanet/"
+    selectors:
+      item: "article, li, .item, .post, .product"
+      title: "h1, h2, h3, .title, .entry-title, .product-title, a"
+      description: "p, .description, .excerpt, .summary"
+      link: "a[href]"
+      image: "img[src], img[data-src], img[data-lazy-src]"
+    category: "sale"
+    enabled: true
+    timeout: 20
+
+  - name: "MonsterFishKeepers"
+    url: "https://www.monsterfishkeepers.com/forums/"
+    selectors:
+      item: "article, li, .item, .post, .structItem"
+      title: "h1, h2, h3, .title, .entry-title, .structItem-title, a"
+      description: "p, .description, .excerpt, .summary, .structItem-snippet"
+      link: "a[href]"
+      image: "img[src], img[data-src], img[data-lazy-src]"
+    category: "news"
+    enabled: true
+    timeout: 20
+
 crawler_settings:
   timeout: 30
   max_retries: 3
   retry_delay: 1
   duplicate_ttl_hours: 24
   archive_retention_days: 30
-  batch_size: 10
+  batch_size: 30
