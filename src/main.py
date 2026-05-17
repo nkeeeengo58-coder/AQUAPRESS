@@ -6,6 +6,8 @@ import os
 from pathlib import Path
 
 from ai.gemini_script import generate_script_from_text, merge_script_into_video_data
+from crawler import run_crawler
+from crawler.storage import load_crawler_data, save_crawler_data
 from utils.paths import ensure_output_folders, get_project_root
 from video.generator import generate_video, load_sample_data, load_video_style
 from video.thumbnail import create_thumbnail
@@ -26,6 +28,15 @@ def main() -> int:
     parser.add_argument(
         "--info",
         help="Generate script data with Gemini from free text, then merge into input JSON schema",
+    )
+    parser.add_argument(
+        "--crawler",
+        action="store_true",
+        help="Run crawler to fetch fresh data, then generate script with Gemini",
+    )
+    parser.add_argument(
+        "--crawler-date",
+        help="Use crawler data from specified date (YYYY-MM-DD), then generate script with Gemini",
     )
     args = parser.parse_args()
     sample_path = Path(args.sample)
@@ -48,7 +59,40 @@ def main() -> int:
         print("[INFO] Preview mode enabled (540x960, 12fps, 12s)")
 
     data = load_sample_data(sample_path)
-    if args.info:
+    
+    if args.crawler:
+        try:
+            print("[INFO] Running crawler to fetch fresh data...")
+            crawler_result = run_crawler()
+            save_crawler_data(crawler_result)
+            info_text = _convert_crawler_to_info_text(crawler_result)
+            script_data = generate_script_from_text(info_text)
+            data = merge_script_into_video_data(data, script_data)
+            generated_path = root / "output" / "metadata" / "generated_script.json"
+            generated_path.parent.mkdir(parents=True, exist_ok=True)
+            generated_path.write_text(json.dumps(script_data, ensure_ascii=False, indent=2), encoding="utf-8")
+            print(f"[INFO] Crawler + Gemini script generated: {generated_path}")
+        except ValueError as exc:
+            print(f"[ERROR] Crawler/Gemini generation failed: {exc}")
+            return 1
+    elif args.crawler_date:
+        try:
+            print(f"[INFO] Loading crawler data from {args.crawler_date}...")
+            crawler_result = load_crawler_data(args.crawler_date)
+            if not crawler_result.get("items"):
+                print(f"[WARN] No crawler data found for {args.crawler_date}")
+            else:
+                info_text = _convert_crawler_to_info_text(crawler_result)
+                script_data = generate_script_from_text(info_text)
+                data = merge_script_into_video_data(data, script_data)
+                generated_path = root / "output" / "metadata" / "generated_script.json"
+                generated_path.parent.mkdir(parents=True, exist_ok=True)
+                generated_path.write_text(json.dumps(script_data, ensure_ascii=False, indent=2), encoding="utf-8")
+                print(f"[INFO] Crawler + Gemini script generated: {generated_path}")
+        except ValueError as exc:
+            print(f"[ERROR] Crawler/Gemini generation failed: {exc}")
+            return 1
+    elif args.info:
         try:
             script_data = generate_script_from_text(args.info)
             data = merge_script_into_video_data(data, script_data)
@@ -68,6 +112,46 @@ def main() -> int:
     create_thumbnail(data.get("title", "AQUA PRESS"))
     print(f"[OK] Video generated: {output_path}")
     return 0
+
+
+def _convert_crawler_to_info_text(crawler_result: dict) -> str:
+    """Convert crawler data to text format for Gemini input."""
+    items = crawler_result.get("items", [])
+    if not items:
+        raise ValueError("Crawler result contains no items")
+
+    lines = ["アクアリウム最新情報:\n"]
+    for item in items[:5]:
+        title = item.get("title", "").strip()
+        desc = item.get("description", "").strip()
+        category = item.get("category", "").strip()
+        if title:
+            lines.append(f"【{category.upper()}】{title}")
+            if desc:
+                lines.append(f"  {desc}")
+            lines.append("")
+
+    return "\n".join(lines) or "アクアリウム情報"
+
+
+def _convert_crawler_to_info_text(crawler_result: dict) -> str:
+    """Convert crawler data to text format for Gemini input."""
+    items = crawler_result.get("items", [])
+    if not items:
+        raise ValueError("Crawler result contains no items")
+
+    lines = ["アクアリウム最新情報:\n"]
+    for item in items[:5]:
+        title = item.get("title", "").strip()
+        desc = item.get("description", "").strip()
+        category = item.get("category", "").strip()
+        if title:
+            lines.append(f"【{category.upper()}】{title}")
+            if desc:
+                lines.append(f"  {desc}")
+            lines.append("")
+
+    return "\n".join(lines) or "アクアリウム情報"
 
 
 if __name__ == "__main__":

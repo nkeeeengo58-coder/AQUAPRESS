@@ -1,0 +1,32 @@
+# Crawler information sources configuration
+
+rss_feeds:
+  - name: "Google News - Aquarium"
+    url: "https://news.google.com/rss/search?q=アクアリウム"
+    category: "news"
+    enabled: true
+  - name: "Google News - Tropical Fish"
+    url: "https://news.google.com/rss/search?q=熱帯魚"
+    category: "news"
+    enabled: true
+
+html_sources:
+  - name: "Aquarium Shop Example"
+    url: "https://example-aquarium-shop.com/arrival"
+    selectors:
+      title: "div.item-title"
+      description: "div.item-description"
+      image: "img.item-image"
+      link: "a.item-link"
+    category: "arrival"
+    enabled: false  # Replace with real URL
+    timeout: 10
+
+# Crawler behavior settings
+crawler_settings:
+  timeout: 30
+  max_retries: 3
+  retry_delay: 1
+  duplicate_ttl_hours: 24
+  archive_retention_days: 30
+  batch_size: 10
