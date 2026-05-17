@@ -21,6 +21,8 @@ def run_crawler() -> dict[str, list]:
     """Run all enabled crawler sources and return aggregated results."""
     from crawler.rss_fetcher import fetch_rss_feeds
     from crawler.html_scraper import scrape_html_sources
+    from crawler.image_downloader import download_image
+    from crawler.data_normalizer import normalize_and_deduplicate
 
     config = get_crawler_config()
     all_items = []
@@ -43,7 +45,14 @@ def run_crawler() -> dict[str, list]:
             except Exception as exc:
                 print(f"[WARN] HTML scrape failed for {source_config.get('name', 'unknown')}: {exc}")
 
-    from crawler.data_normalizer import normalize_and_deduplicate
+    # Phase 7: Download images and cache locally (if image_url present)
+    image_download_enabled = config.get("crawler_settings", {}).get("download_images", True)
+    if image_download_enabled:
+        for item in all_items:
+            if item.get("image_url"):
+                local_path = download_image(item["image_url"])
+                if local_path:
+                    item["image_path"] = local_path
 
     normalized = normalize_and_deduplicate(all_items, config.get("crawler_settings", {}))
     return {"items": normalized}

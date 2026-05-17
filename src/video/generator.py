@@ -79,7 +79,8 @@ def _build_section_clip(section: dict, style: dict, duration: float):
     canvas = Image.new("RGB", (width, height), _color_to_rgb(background_color))
     draw = ImageDraw.Draw(canvas)
 
-    image_path = section.get("image")
+    # Phase 7: Prioritize cached image_path from crawler, then fall back to generated image
+    image_path = section.get("image_path") or section.get("image")
     if image_path:
         resolved = resolve_project_path(image_path)
         if resolved.exists():

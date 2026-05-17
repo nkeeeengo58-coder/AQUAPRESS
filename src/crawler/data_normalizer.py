@@ -31,6 +31,7 @@ def normalize_and_deduplicate(items: list[dict[str, Any]], settings: dict) -> li
             "description": (item.get("description") or "").strip(),
             "url": url,
             "image_url": (item.get("image_url") or "").strip() or None,
+            "image_path": (item.get("image_path") or "").strip() or None,  # local cache path (Phase 7)
             "category": (item.get("category") or "news").strip(),
             "date": (item.get("date") or "").strip() or datetime.utcnow().isoformat(),
         }
