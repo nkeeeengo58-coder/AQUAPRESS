@@ -1,0 +1,101 @@
+name: Daily AQUA PRESS Video Generation
+
+on:
+  schedule:
+    # UTC 08:00 every day (JST 17:00)
+    - cron: '0 8 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  generate-video:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run crawler and generate video
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: gemini-2.0-flash
+          GEMINI_API_ENDPOINT: https://generativelanguage.googleapis.com/v1beta/models
+        run: |
+          # Run crawler to fetch fresh data
+          python -c "
+          import sys; sys.path.insert(0, 'src')
+          from crawler import run_crawler
+          from datetime import datetime
+          
+          print('[INFO] Running crawler...')
+          result = run_crawler()
+          
+          if result.get('items'):
+              print(f'[OK] Fetched {len(result[\"items\"])} items')
+              # Convert to info text and pass to Gemini
+              from main import _convert_crawler_to_info_text
+              info_text = _convert_crawler_to_info_text(result)
+              print('[INFO] Generated info text for Gemini')
+              print(info_text[:200] + '...' if len(info_text) > 200 else info_text)
+          else:
+              print('[WARN] No items fetched, skipping generation')
+              sys.exit(0)
+          "
+
+      - name: Generate script with Gemini (optional sample mode)
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: gemini-2.0-flash
+        run: |
+          # Generate sample metadata if needed
+          ls -la metadata/ 2>/dev/null || echo "[INFO] No metadata directory yet"
+          
+          # Count generated scripts
+          SCRIPT_COUNT=$(find metadata/ -name "generated_script_*.json" 2>/dev/null | wc -l)
+          echo "[OK] Generated scripts: $SCRIPT_COUNT"
+
+      - name: Commit and push crawler data
+        run: |
+          git config user.name "AQUA PRESS Bot"
+          git config user.email "bot@aquapress.local"
+          
+          # Check if there are new crawler data files
+          if git status --porcelain | grep -q "crawler_data_"; then
+              git add metadata/crawler_data_*.json
+              git commit -m "chore: auto-generated crawler data $(date +%Y-%m-%d)"
+              git push
+              echo "[OK] Pushed new crawler data"
+          else
+              echo "[INFO] No new crawler data to commit"
+          fi
+
+      - name: Upload run logs (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: workflow-logs
+          path: |
+            *.log
+            metadata/
+            crawler_logs/
+          retention-days: 7
+
+      - name: Notify completion
+        if: always()
+        run: |
+          echo "[INFO] Daily AQUA PRESS generation completed"
+          echo "Repository: https://github.com/${{ github.repository }}"
+          echo "Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"

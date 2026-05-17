@@ -196,3 +196,46 @@ aqua-press/
 ## 将来の情報取得
 
 `src/crawler/README.md` にある通り、requests、BeautifulSoup、feedparser、RSS を中心に情報取得モジュールを追加する予定です。SNS 取得は規約に注意して段階的に扱います。
+
+## 毎日自動実行（Phase 5）
+
+### GitHub Actions で毎日自動化
+
+GitHub Actions を使用して、毎日 UTC 08:00（日本時間 17:00）に自動実行します。
+
+**セットアップ手順:**
+
+1. GitHub リポジトリの **Settings → Secrets and variables → Actions** で `GEMINI_API_KEY` を追加
+2. ワークフロー自動実行開始（スケジュール）
+
+詳細は [.github/PHASE5_SETUP.md](.github/PHASE5_SETUP.md) を参照してください。
+
+### 自動実行内容
+
+- Crawler で RSS / HTML から最新情報を取得
+- Gemini Flash で台本を自動生成
+- 生成データを metadata/ に保存
+- 自動コミット
+
+### 手動実行（ローカル）
+
+```bash
+# Crawler 実行
+python src/main.py --crawler
+
+# 指定日付のデータで実行
+python src/main.py --crawler-date 2026-05-17
+```
+
+### Actions 実行ログ
+
+GitHub リポジトリの **Actions** タブで実行ログを確認できます。
+手動実行は **Run workflow** ボタンから可能です。
+
+## 現在のバージョン
+
+- **v0.1**: 基本ビデオ生成パイプライン ✅
+- **v0.2**: VOICEVOX ナレーション合成 ✅
+- **v0.3**: Gemini Flash スクリプト生成 ✅
+- **v0.4**: Crawler（RSS/HTML）自動取得 ✅
+- **v0.5**: GitHub Actions 毎日自動実行 ✅（進行中）
