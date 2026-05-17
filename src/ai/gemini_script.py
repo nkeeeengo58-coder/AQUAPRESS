@@ -8,6 +8,8 @@ from urllib import error, parse, request
 
 from dotenv import load_dotenv
 
+from ai.language_config import get_system_prompt
+
 load_dotenv()
 
 
@@ -18,12 +20,27 @@ DEFAULT_GEMINI_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/mode
 def generate_script_from_text(
     info_text: str,
     *,
+    language: str = "ja",
     api_key: str | None = None,
     model: str | None = None,
     endpoint: str | None = None,
     temperature: float = 0.7,
     timeout: int = 30,
 ) -> dict[str, Any]:
+    """Generate script from text using Gemini API.
+    
+    Args:
+        info_text: Input information text.
+        language: Target language (ja, en, zh, th). Defaults to 'ja'.
+        api_key: Gemini API key. If not provided, uses GEMINI_API_KEY env var.
+        model: Gemini model to use. If not provided, uses default.
+        endpoint: Gemini API endpoint. If not provided, uses default.
+        temperature: Temperature for generation.
+        timeout: Request timeout in seconds.
+        
+    Returns:
+        Generated script data as dictionary.
+    """
     if not info_text or not info_text.strip():
         raise ValueError("info_text must not be empty")
 
@@ -33,7 +50,7 @@ def generate_script_from_text(
 
     chosen_model = model or os.getenv("GEMINI_MODEL") or DEFAULT_GEMINI_MODEL
     chosen_endpoint = endpoint or os.getenv("GEMINI_API_ENDPOINT") or DEFAULT_GEMINI_ENDPOINT
-    prompt = _build_prompt(info_text)
+    prompt = _build_prompt(info_text, language=language)
 
     response_json = _request_gemini(
         api_key=key,
@@ -88,11 +105,20 @@ def merge_script_into_video_data(base_data: dict[str, Any], script_data: dict[st
     return merged
 
 
-def _build_prompt(info_text: str) -> str:
+def _build_prompt(info_text: str, language: str = "ja") -> str:
+    """Build Gemini prompt for script generation in specified language.
+    
+    Args:
+        info_text: Input information text.
+        language: Target language (ja, en, zh, th).
+        
+    Returns:
+        Prompt string for Gemini API.
+    """
+    system_prompt = get_system_prompt(language)
+    
     return (
-        "あなたはAQUA PRESSの台本エディタです。"
-        "入力情報をもとに、40秒程度の縦動画向け台本を日本語で作成してください。\n"
-        "出力はJSONのみ。余計な説明文は出さないでください。\n"
+        f"{system_prompt}\n\n"
         "必須キーは title, description, hook, sections, narration_text, cta。\n"
         "sections は2-4件で、各要素は {\"caption\": \"...\"} を返してください。\n"
         "hook は改行を含めて短く強い導入にしてください。\n"

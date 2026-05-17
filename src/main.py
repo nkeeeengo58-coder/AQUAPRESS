@@ -38,6 +38,12 @@ def main() -> int:
         "--crawler-date",
         help="Use crawler data from specified date (YYYY-MM-DD), then generate script with Gemini",
     )
+    parser.add_argument(
+        "--language",
+        default="ja",
+        choices=["ja", "en", "zh", "th"],
+        help="Target language (ja, en, zh, th). Defaults to ja.",
+    )
     args = parser.parse_args()
     sample_path = Path(args.sample)
     if not sample_path.is_absolute():
@@ -62,11 +68,11 @@ def main() -> int:
     
     if args.crawler:
         try:
-            print("[INFO] Running crawler to fetch fresh data...")
-            crawler_result = run_crawler()
+            print(f"[INFO] Running crawler to fetch fresh data for language: {args.language}...")
+            crawler_result = run_crawler(language=args.language)
             save_crawler_data(crawler_result)
-            info_text = _convert_crawler_to_info_text(crawler_result)
-            script_data = generate_script_from_text(info_text)
+            info_text = _convert_crawler_to_info_text(crawler_result, language=args.language)
+            script_data = generate_script_from_text(info_text, language=args.language)
             data = merge_script_into_video_data(data, script_data)
             generated_path = root / "output" / "metadata" / "generated_script.json"
             generated_path.parent.mkdir(parents=True, exist_ok=True)
@@ -77,13 +83,13 @@ def main() -> int:
             return 1
     elif args.crawler_date:
         try:
-            print(f"[INFO] Loading crawler data from {args.crawler_date}...")
+            print(f"[INFO] Loading crawler data from {args.crawler_date} for language: {args.language}...")
             crawler_result = load_crawler_data(args.crawler_date)
             if not crawler_result.get("items"):
                 print(f"[WARN] No crawler data found for {args.crawler_date}")
             else:
-                info_text = _convert_crawler_to_info_text(crawler_result)
-                script_data = generate_script_from_text(info_text)
+                info_text = _convert_crawler_to_info_text(crawler_result, language=args.language)
+                script_data = generate_script_from_text(info_text, language=args.language)
                 data = merge_script_into_video_data(data, script_data)
                 generated_path = root / "output" / "metadata" / "generated_script.json"
                 generated_path.parent.mkdir(parents=True, exist_ok=True)
@@ -94,7 +100,7 @@ def main() -> int:
             return 1
     elif args.info:
         try:
-            script_data = generate_script_from_text(args.info)
+            script_data = generate_script_from_text(args.info, language=args.language)
             data = merge_script_into_video_data(data, script_data)
             generated_path = root / "output" / "metadata" / "generated_script.json"
             generated_path.parent.mkdir(parents=True, exist_ok=True)
@@ -114,13 +120,29 @@ def main() -> int:
     return 0
 
 
-def _convert_crawler_to_info_text(crawler_result: dict) -> str:
-    """Convert crawler data to text format for Gemini input."""
+def _convert_crawler_to_info_text(crawler_result: dict, language: str = "ja") -> str:
+    """Convert crawler data to text format for Gemini input.
+    
+    Args:
+        crawler_result: Dictionary with 'items' key from crawler.
+        language: Target language (ja, en, zh, th).
+        
+    Returns:
+        Text formatted for Gemini input.
+    """
     items = crawler_result.get("items", [])
     if not items:
         raise ValueError("Crawler result contains no items")
 
-    lines = ["アクアリウム最新情報:\n"]
+    # Language-specific headers
+    headers = {
+        "ja": "アクアリウム最新情報:\n",
+        "en": "Latest aquarium news:\n",
+        "zh": "最新水族馆信息:\n",
+        "th": "ข่าวตัวอักษรล่าสุด:\n",
+    }
+    
+    lines = [headers.get(language, headers["ja"])]
     for item in items[:5]:
         title = item.get("title", "").strip()
         desc = item.get("description", "").strip()
@@ -131,27 +153,17 @@ def _convert_crawler_to_info_text(crawler_result: dict) -> str:
                 lines.append(f"  {desc}")
             lines.append("")
 
-    return "\n".join(lines) or "アクアリウム情報"
+    default_text = {
+        "ja": "アクアリウム情報",
+        "en": "Aquarium information",
+        "zh": "水族馆信息",
+        "th": "ข้อมูลตัวอักษร",
+    }
+    
+    return "\n".join(lines) or default_text.get(language, default_text["ja"])
 
 
-def _convert_crawler_to_info_text(crawler_result: dict) -> str:
-    """Convert crawler data to text format for Gemini input."""
-    items = crawler_result.get("items", [])
-    if not items:
-        raise ValueError("Crawler result contains no items")
 
-    lines = ["アクアリウム最新情報:\n"]
-    for item in items[:5]:
-        title = item.get("title", "").strip()
-        desc = item.get("description", "").strip()
-        category = item.get("category", "").strip()
-        if title:
-            lines.append(f"【{category.upper()}】{title}")
-            if desc:
-                lines.append(f"  {desc}")
-            lines.append("")
-
-    return "\n".join(lines) or "アクアリウム情報"
 
 
 if __name__ == "__main__":
