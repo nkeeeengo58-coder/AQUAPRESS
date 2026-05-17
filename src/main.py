@@ -114,7 +114,7 @@ def main() -> int:
         output_name = Path(data.get("output", "output/videos/aqua_press_sample.mp4")).name
         data["output"] = f"output/videos/preview_{output_name}"
 
-    output_path = generate_video(data, style=style)
+    output_path = generate_video(data, style=style, language=args.language)
     create_thumbnail(data.get("title", "AQUA PRESS"))
     print(f"[OK] Video generated: {output_path}")
     return 0

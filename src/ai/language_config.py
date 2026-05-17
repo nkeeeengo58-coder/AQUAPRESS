@@ -24,6 +24,11 @@ class LanguageConfig:
     # VOICEVOX speaker ID (if supported, else None)
     voicevox_speaker: int | None
     
+    # TTS (Text-to-Speech) configuration (Phase 11)
+    tts_engine: str | None  # "voicevox", "google", None
+    tts_language_code: str  # e.g., "ja-JP", "en-US", "zh-CN", "th-TH"
+    tts_voice_id: str | None  # e.g., "en-US-Neural2-A"
+    
     # Video style customization (if needed)
     font_name: str | None = None
     
@@ -52,6 +57,9 @@ Generate a concise, engaging Japanese news script about aquarium topics.
 Output format: JSON with 'title' and 'narration_lines' fields.
 Keep lines short (max 30 chars) for readability in vertical video format.""",
         voicevox_speaker=3,  # Japanese narrator
+        tts_engine="voicevox",
+        tts_language_code="ja-JP",
+        tts_voice_id=None,
         font_name="arial",
         ui_text={
             "loading": "読込中...",
@@ -80,7 +88,10 @@ Generate a concise, engaging English news script about aquarium topics.
 Output format: JSON with 'title' and 'narration_lines' fields.
 Keep lines short (max 30 chars) for readability in vertical video format.
 Use simple English suitable for global audience.""",
-        voicevox_speaker=None,  # English support TBD
+        voicevox_speaker=None,  # Not supported by VOICEVOX
+        tts_engine="google",
+        tts_language_code="en-US",
+        tts_voice_id="en-US-Neural2-A",
         font_name="arial",
         ui_text={
             "loading": "Loading...",
@@ -109,7 +120,10 @@ Use simple English suitable for global audience.""",
 输出格式：JSON，包含 'title' 和 'narration_lines' 字段。
 保持行短（最多30个字符），便于竖屏视频格式阅读。
 使用简体中文。""",
-        voicevox_speaker=None,  # Chinese support TBD
+        voicevox_speaker=None,  # Not supported by VOICEVOX
+        tts_engine=None,  # TBD in Phase 12
+        tts_language_code="zh-CN",
+        tts_voice_id=None,
         font_name=None,  # Chinese fonts need special handling
         ui_text={
             "loading": "加载中...",
@@ -138,7 +152,10 @@ Use simple English suitable for global audience.""",
 รูปแบบเอาต์พุต: JSON พร้อมฟิลด์ 'title' และ 'narration_lines'
 เก็บบรรทัดให้สั้น (สูงสุด 30 ตัวอักษร) เพื่อให้อ่านง่ายในรูปแบบวิดีโอแนวตั้ง
 ใช้ภาษาไทยที่เรียบง่าย""",
-        voicevox_speaker=None,  # Thai support TBD
+        voicevox_speaker=None,  # Not supported by VOICEVOX
+        tts_engine=None,  # TBD in Phase 12
+        tts_language_code="th-TH",
+        tts_voice_id=None,
         font_name=None,  # Thai fonts need special handling
         ui_text={
             "loading": "กำลังโหลด...",

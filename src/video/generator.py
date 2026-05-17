@@ -14,6 +14,7 @@ except ImportError:  # pragma: no cover
     from moviepy.editor import AudioFileClip, ColorClip, CompositeAudioClip, ImageClip, concatenate_videoclips
 
 from audio.bgm import load_bgm_clip
+from audio.tts_factory import synthesize_narration
 from audio.voicevox import DEFAULT_SPEAKER, DEFAULT_VOICEVOX_ENGINE_URL, synthesize_voicevox
 from utils.paths import ensure_output_folders, get_project_root, resolve_project_path
 from video.captions import _load_font, create_title_card_clip
@@ -144,8 +145,18 @@ def _build_hook_clip(hook_text: str, style: dict, duration: float):
     return title_clip
 
 
-def generate_video(data: dict, style: dict | None = None) -> Path:
-    print("[INFO] Video generation started", flush=True)
+def generate_video(data: dict, style: dict | None = None, language: str = "ja") -> Path:
+    """Generate AQUA PRESS short video with language-specific audio.
+    
+    Args:
+        data: Video metadata dictionary.
+        style: Video style configuration. If None, loads from default.
+        language: Target language (ja, en, zh, th). Defaults to 'ja'.
+    
+    Returns:
+        Path to generated video file.
+    """
+    print(f"[INFO] Video generation started (language: {language})", flush=True)
     style = style or load_video_style()
     folders = ensure_output_folders()
 
@@ -191,8 +202,13 @@ def generate_video(data: dict, style: dict | None = None) -> Path:
                 print(f"[WARN] Failed to load narration audio '{narration_path}': {exc}")
         else:
             print(f"[WARN] Narration audio not found: {narration_path}")
-    elif narration_text and (voicevox_settings.get("enabled") is True or os.getenv("AQUAPRESS_VOICEVOX") == "1"):
-        narration_path = _synthesize_narration_audio(narration_text, folders, voicevox_settings)
+    elif narration_text:
+        # Use TTS factory for language-aware audio synthesis
+        narration_path = synthesize_narration(
+            narration_text,
+            language=language,
+            output_path=None,
+        )
         if narration_path is not None:
             try:
                 audio_tracks.append(AudioFileClip(str(narration_path)))
