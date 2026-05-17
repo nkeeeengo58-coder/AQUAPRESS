@@ -17,6 +17,19 @@ jobs:
       group: daily-video-generation
       cancel-in-progress: false
 
+    services:
+      # Phase 8: VOICEVOX Docker service for narration synthesis
+      voicevox:
+        image: voicevox/voicevox_engine:latest-cpu
+        options: --cpus 2 --memory 2gb
+        ports:
+          - 50021:50021
+        env:
+          CPU_ONLY: 'true'
+        # Wait for VOICEVOX to be ready (health check)
+        volumes:
+          - /tmp/voicevox:/tmp/voicevox
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -40,7 +53,19 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_MODEL: gemini-2.0-flash
           GEMINI_API_ENDPOINT: https://generativelanguage.googleapis.com/v1beta/models
+          VOICEVOX_ENGINE_URL: http://voicevox:50021
+          AQUAPRESS_VOICEVOX: '1'
         run: |
+          # Wait for VOICEVOX to be ready
+          for i in {1..30}; do
+            if curl -s http://voicevox:50021/speakers > /dev/null 2>&1; then
+              echo "[INFO] VOICEVOX service is ready"
+              break
+            fi
+            echo "[INFO] Waiting for VOICEVOX... ($i/30)"
+            sleep 1
+          done
+
           set +e
           python src/main.py --crawler 2>&1 | tee primary.log
           status=${PIPESTATUS[0]}
@@ -65,6 +90,8 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_MODEL: gemini-2.0-flash
           GEMINI_API_ENDPOINT: https://generativelanguage.googleapis.com/v1beta/models
+          VOICEVOX_ENGINE_URL: http://voicevox:50021
+          AQUAPRESS_VOICEVOX: '1'
         run: |
           python scripts/run_local_full_pipeline.py
 

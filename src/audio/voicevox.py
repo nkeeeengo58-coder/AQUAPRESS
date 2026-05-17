@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 from urllib import parse, request
 from urllib.error import HTTPError, URLError
 
 
-DEFAULT_VOICEVOX_ENGINE_URL = "http://127.0.0.1:50021"
+DEFAULT_VOICEVOX_ENGINE_URL = os.getenv("VOICEVOX_ENGINE_URL", "http://127.0.0.1:50021")
 DEFAULT_SPEAKER = 3
 
 

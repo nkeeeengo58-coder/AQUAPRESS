@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 from datetime import datetime
 from pathlib import Path
 import sys
@@ -111,6 +112,10 @@ def main() -> int:
     now = datetime.now().strftime("%Y%m%d_%H%M%S")
     video_output = f"output/videos/preview_aqua_press_auto_{now}.mp4"
 
+    # Phase 8: Use VOICEVOX_ENGINE_URL from environment (GitHub Actions VOICEVOX Docker)
+    voicevox_enabled = os.getenv("AQUAPRESS_VOICEVOX", "0") == "1"
+    voicevox_engine_url = os.getenv("VOICEVOX_ENGINE_URL", "http://127.0.0.1:50021")
+
     data = {
         "title": "AQUA PRESS 自動速報",
         "description": "Google情報収集から自動生成したアクアリウム速報動画",
@@ -119,8 +124,8 @@ def main() -> int:
         "narration_audio": None,
         "narration_text": "\n".join(narration_lines),
         "voicevox": {
-            "enabled": False,
-            "engine_url": "http://127.0.0.1:50021",
+            "enabled": voicevox_enabled,
+            "engine_url": voicevox_engine_url,
             "speaker": 3,
             "output": f"auto_narration_{now}.wav",
         },
