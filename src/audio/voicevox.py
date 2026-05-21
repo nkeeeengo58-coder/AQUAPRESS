@@ -6,6 +6,8 @@ from pathlib import Path
 from urllib import parse, request
 from urllib.error import HTTPError, URLError
 
+from utils.paths import get_project_root
+
 
 DEFAULT_VOICEVOX_ENGINE_URL = os.getenv("VOICEVOX_ENGINE_URL", "http://127.0.0.1:50021")
 DEFAULT_SPEAKER = 3
@@ -13,7 +15,7 @@ DEFAULT_SPEAKER = 3
 
 def synthesize_voicevox(
     text: str,
-    output_path: str | Path,
+    output_path: str | Path | None,
     speaker: int = DEFAULT_SPEAKER,
     engine_url: str = DEFAULT_VOICEVOX_ENGINE_URL,
     speed_scale: float = 1.0,
@@ -26,6 +28,9 @@ def synthesize_voicevox(
 ) -> Path | None:
     if not text or not text.strip():
         return None
+
+    if output_path is None:
+        output_path = get_project_root() / "output" / "audio" / "voicevox_narration.wav"
 
     output_file = Path(output_path)
     output_file.parent.mkdir(parents=True, exist_ok=True)

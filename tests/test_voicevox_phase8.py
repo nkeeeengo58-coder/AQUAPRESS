@@ -95,6 +95,34 @@ class TestVoicevoxEnvironmentVariable:
         # Verify calls were made
         assert mock_urlopen.call_count >= 2
 
+    @patch("audio.voicevox.request.urlopen")
+    @patch("audio.voicevox.get_project_root")
+    def test_synthesize_generates_default_output_path_when_none(self, mock_project_root, mock_urlopen, tmp_path):
+        """Test VOICEVOX synthesis auto-generates an output path when None is passed."""
+        from audio.voicevox import synthesize_voicevox
+
+        mock_project_root.return_value = tmp_path
+
+        query_response = MagicMock()
+        query_response.read.return_value = b'{"kana": "test", "outputSamplingRate": 24000, "outputStereo": false}'
+        query_response.__enter__.return_value = query_response
+
+        synthesis_response = MagicMock()
+        synthesis_response.read.return_value = b"fake_audio_data"
+        synthesis_response.__enter__.return_value = synthesis_response
+
+        mock_urlopen.side_effect = [query_response, synthesis_response]
+
+        result = synthesize_voicevox(
+            "test",
+            None,
+        )
+
+        expected_path = tmp_path / "output" / "audio" / "voicevox_narration.wav"
+        assert result == expected_path
+        assert expected_path.exists()
+        assert expected_path.read_bytes() == b"fake_audio_data"
+
 
 class TestLocalFullPipelineVoicevoxConfig:
     """Test VOICEVOX configuration in local full pipeline."""
