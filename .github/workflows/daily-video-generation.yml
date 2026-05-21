@@ -20,7 +20,7 @@ jobs:
     services:
       # Phase 8: VOICEVOX Docker service for narration synthesis
       voicevox:
-        image: voicevox/voicevox_engine:latest-cpu
+        image: voicevox/voicevox_engine:cpu-latest
         options: --cpus 2 --memory 2gb
         ports:
           - 50021:50021
