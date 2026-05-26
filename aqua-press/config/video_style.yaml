@@ -1,0 +1,13 @@
+width: 1080
+height: 1920
+fps: 30
+duration_seconds: 40
+background_color: black
+text_color: white
+accent_color: red
+font_size_title: 74
+font_size_caption: 58
+image_max_width: 900
+image_max_height: 900
+caption_box_opacity: 0.55
+bgm_volume: 0.15
